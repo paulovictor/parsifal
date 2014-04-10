@@ -80,13 +80,16 @@ def review(request, username, review_name):
 @login_required
 def add_author_to_review(request):
     try:
-        username = request.GET['username']
-        review_id = request.GET['review-id']
+        author_ref = request.POST['author-ref']
+        review_id = request.POST['review-id']
         
         try:
-            user = User.objects.get(username__iexact=username)
+            user = User.objects.get(username__iexact=author_ref)
         except User.DoesNotExist:
-            user = None
+            try:
+                user = User.objects.get(email__iexact=author_ref)
+            except User.DoesNotExist:
+                user = None
 
         review = Review.objects.get(pk=review_id)
 

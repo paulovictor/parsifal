@@ -1,72 +1,31 @@
 $(function () {
-  var is_editing = false;
 
-  $.fn.addSettings = function () {
-    $(this).blur(function () {
-      var author = $(this).val();
-      var parent = $(this).closest('li');
-      var id = $('#review-id').val();
-      if (author == "") {
-        parent.remove();
-        is_editing = false;
-      }
-      else {
-        $.ajax({
-            url: '/reviews/add_author/',
-            data: { 'review-id': id, 'username': author },
-            type: 'get',
-            cache: false,
-            success: function (data) {
-              parent.remove();
-              $('.authors').append(data);
-            },
-            error: function () {
-              parent.remove();
-            },
-            complete: function () {
-              is_editing = false;
-            }
-        });
-      }
-    });
+  $(".add-author").click(function () {
+    $("#modal-add-author").open();
+  });
 
-    $(this).keyup(function (evt) {
-      var keyCode = evt.which?evt.which:evt.keyCode;
-      if (keyCode == ENTER_KEY) {
-        $(this).blur();
-      }
-      else if (keyCode == ESCAPE_KEY) {
-        $(this).closest('li').remove();
-        is_editing = false;
-      }
-    });
-  };
-
-  var removeAuthor = function () {
-    var review_id = $('#review-id').val();
-    var parent = $(this).closest('li');
-    var author_id = parent.attr("author-id");
+  $(".btn-add-author").click(function () {
+    var review_id = $("#review-id").val();
+    var author_ref = $("#author-username-email").val();
+    var btn = $(this);
     $.ajax({
-      url: '/reviews/remove_author/',
-      data: { 'review-id': review_id, 'author-id': author_id },
-      type: 'get',
+      url: '/reviews/add_author/',
+      data: {
+        'review-id': review_id,
+        'author-ref': author_ref
+      },
+      type: 'post',
       cache: false,
+      beforeSend: function () {
+        $(btn).disable();
+      },
       success: function (data) {
-        parent.remove();
+
+      },
+      complete: function () {
+        $(btn).enable();
       }
     });
-  };
-
-  $('.add-author').click(function () {
-    if (is_editing) {
-      return false;
-    }
-    else {
-      is_editing = true;
-      $('.authors').append('<li class="add-author-input"><input type="text" class="input-author"> <span>(please inform the author\'s username or email and then press <strong>Enter</strong> to confirm or <strong>Esc</strong> to cancel)</span></li>');
-      $('.input-author').focus();
-      $('.input-author').addSettings();
-    }
   });
 
   $("#btn-save-description").click(function () {
@@ -103,6 +62,13 @@ $(function () {
     });
   });
 
-  $("ul.authors").on("click", ".remove-author", removeAuthor);
+  $("ul.tab li a").click(function () {
+    var tab_id = $(this).attr("href");
+    $("ul.tab li").removeClass("active");
+    $(this).closest("li").addClass("active");
+    $(".tabs div").hide();
+    $(tab_id).fadeIn();
+    return false;
+  });
 
 });

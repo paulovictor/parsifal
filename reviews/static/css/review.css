@@ -72,3 +72,28 @@ span.main-author-label {
   font-weight: 400;
   font-size: 0.9em;
 }
+
+ul.friend-list {
+  margin-left: 0;
+}
+
+ul.friend-list li {
+  list-style: none;
+  margin-bottom: 5px;
+  height: 45px;
+}
+
+img.add-author-picture {
+  width: 40px;
+  height: 40px;
+  border-radius: 0.25em;
+}
+
+span.add-author-name {
+  margin-top: 13px;
+  margin-left: 10px;
+}
+
+ul.friend-list li button {
+  margin-top: 8px;
+}

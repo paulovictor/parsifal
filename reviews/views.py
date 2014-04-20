@@ -3,7 +3,7 @@ from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseForbid
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
-from django.shortcuts import render_to_response, redirect, get_object_or_404
+from django.shortcuts import render_to_response, redirect, get_object_or_404, render
 from django.template import RequestContext
 from django.utils.html import escape
 from reviews.models import Review
@@ -78,11 +78,20 @@ def review(request, username, review_name):
 @ajax_required
 @main_author_required
 @login_required
+def add_author(request):
+    review_id = request.GET['review-id']
+    review = Review.objects.get(pk=review_id)
+    following = review.author.profile.get_following()
+    friends = filter(lambda friend: friend not in review.co_authors.all(), following)
+    return render(request, 'reviews/partial_add_author.html', {'review': review, 'friends': friends})
+
+@ajax_required
+@main_author_required
+@login_required
 def add_author_to_review(request):
     try:
-        author_ref = request.POST['author-ref']
+        author_ref = request.POST['author-username-email']
         review_id = request.POST['review-id']
-        
         try:
             user = User.objects.get(username__iexact=author_ref)
         except User.DoesNotExist:
@@ -90,9 +99,9 @@ def add_author_to_review(request):
                 user = User.objects.get(email__iexact=author_ref)
             except User.DoesNotExist:
                 user = None
-
+                if '@' in author_ref:
+                    pass
         review = Review.objects.get(pk=review_id)
-
         if user is not None and user.id != review.author.id:
             review.co_authors.add(user)
             review.save()
@@ -107,8 +116,8 @@ def add_author_to_review(request):
 @login_required
 def remove_author_from_review(request):
     try:
-        author_id = request.GET['author-id']
-        review_id = request.GET['review-id']
+        author_id = request.POST['author-id']
+        review_id = request.POST['review-id']
         author = User.objects.get(pk=author_id)
         review = Review.objects.get(pk=review_id)
         review.co_authors.remove(author)

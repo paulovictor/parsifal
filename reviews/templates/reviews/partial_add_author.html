@@ -1,0 +1,28 @@
+<ul class="tab">
+  <li class="active"><a href="#new">New</a></li>
+  <li><a href="#friends">Friends</a></li>
+</ul>
+<div class="tabs">
+  <div id="new">
+    <form method="post" id="frm-new-author">
+      <p>Inform the <strong>username</strong> or <strong>email</strong> of the author</p>
+      {% csrf_token %}
+      <input type="hidden" name="review-id" value="{{ review.id }}">
+      <input type="text" id="author-username-email" name="author-username-email" style="width: 350px">
+      <button type="button" class="btn btn-small btn-add-author" style="margin-left: 5px" data-loading="Loading...">Ok</button>
+    </form>
+  </div>
+  <div id="friends" class="hide">
+    <ul class="friend-list">
+      {% for friend in friends %}
+        <li user-id="{{ friend.id }}">
+          <img src="{{ friend.profile.get_picture }}" class="add-author-picture pull-left">
+          <span class="add-author-name pull-left"><a href="/{{ friend.username }}/">{{ friend.profile.get_screen_name }}</a></span>
+          <button type="button" class="btn btn-small pull-right btn-add-friend">Add</button>
+        </li>
+      {% empty %}
+        <li>No data</li>
+      {% endfor %}
+    </ul>
+  </div>
+</div>
